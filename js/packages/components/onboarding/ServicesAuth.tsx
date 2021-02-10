@@ -4,13 +4,20 @@ import { useNavigation } from '@react-navigation/native'
 
 import { servicesAuthViaDefault, useAccountServices } from '@berty-tech/store/services'
 import { useMsgrContext, useNotificationsInhibitor } from '@berty-tech/store/hooks'
+import { PersistentOptionsKeys } from '@berty-tech/store/context'
 
 import SwiperCard from './SwiperCard'
 import OnboardingWrapper from './OnboardingWrapper'
+import { Routes } from '@berty-tech/navigation'
+import { RouteProp } from '@react-navigation/native'
 
-const ServicesAuthBody: React.FC<{ next: () => void }> = ({ next }) => {
+const ServicesAuthBody: React.FC<{ next: () => void; isFromModal: boolean }> = ({
+	next,
+	isFromModal,
+}) => {
 	const ctx = useMsgrContext()
 	const accountServices = useAccountServices() || []
+	const { goBack, reset } = useNavigation()
 
 	React.useEffect(() => {
 		if (accountServices.length > 0) {
@@ -33,6 +40,31 @@ const ServicesAuthBody: React.FC<{ next: () => void }> = ({ next }) => {
 									text: t('onboarding.services-auth.button'),
 									onPress: async () => {
 										await servicesAuthViaDefault(ctx)
+										await ctx.setPersistentOption({
+											type: PersistentOptionsKeys.Configurations,
+											payload: {
+												...ctx.persistentOptions.configurations,
+												notification: {
+													...ctx.persistentOptions.configurations.notification,
+													state: 'added',
+												},
+											},
+										})
+										if (isFromModal) {
+											reset({
+												index: 0,
+												routes: [
+													{
+														name: Routes.Main.Home,
+														params: {
+															isFromModal: true,
+														},
+													},
+												],
+											})
+										} else {
+											goBack()
+										}
 									},
 							  }
 					}
@@ -46,13 +78,44 @@ const ServicesAuthBody: React.FC<{ next: () => void }> = ({ next }) => {
 	)
 }
 
-export const ServicesAuth: React.FC<{}> = () => {
+export const ServicesAuth: React.FC<{ route: RouteProp<any, any> }> = ({ route }) => {
+	const isFromModal = route.params?.isFromModal
 	useNotificationsInhibitor(() => true)
-	const { navigate } = useNavigation()
+	const { goBack, reset } = useNavigation()
+	const { persistentOptions, setPersistentOption } = useMsgrContext()
 
 	return (
 		<OnboardingWrapper>
-			<ServicesAuthBody next={() => navigate('Onboarding.SetupFinished')} />
+			<ServicesAuthBody
+				isFromModal={isFromModal}
+				next={async () => {
+					await setPersistentOption({
+						type: PersistentOptionsKeys.Configurations,
+						payload: {
+							...persistentOptions.configurations,
+							notification: {
+								...persistentOptions.configurations.notification,
+								state: 'skipped',
+							},
+						},
+					})
+					if (isFromModal) {
+						reset({
+							index: 0,
+							routes: [
+								{
+									name: Routes.Main.Home,
+									params: {
+										isFromModal: true,
+									},
+								},
+							],
+						})
+					} else {
+						goBack()
+					}
+				}}
+			/>
 		</OnboardingWrapper>
 	)
 }

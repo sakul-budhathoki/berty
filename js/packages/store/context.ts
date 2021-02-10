@@ -136,6 +136,9 @@ export enum PersistentOptionsKeys {
 	MC = 'mc',
 	Debug = 'debug',
 	Tor = 'tor',
+	Configurations = 'configurations',
+	WelcomeModal = 'welcomeModal',
+	Preset = 'preset',
 }
 
 export type PersistentOptionsI18N = {
@@ -175,6 +178,24 @@ export type PersistentOptionsTor = {
 	flag: string
 }
 
+export type Configuration = {
+	displayName: string
+	desc: string
+	icon: string
+	state: 'added' | 'skipped' | 'unread'
+	color: string
+	navigate: string[]
+}
+
+export type PersistentOptionsWelcomeModal = {
+	enable: boolean
+}
+export type PersistentOptionsConfigurations = { [key: string]: Configuration }
+
+export type PersistentOptionsPreset = {
+	value: 'performance' | 'full-anonymity'
+}
+
 export type PersistentOptionsUpdate =
 	| {
 			type: typeof PersistentOptionsKeys.I18N
@@ -204,6 +225,18 @@ export type PersistentOptionsUpdate =
 			type: typeof PersistentOptionsKeys.Tor
 			payload: Partial<PersistentOptionsTor>
 	  }
+	| {
+			type: typeof PersistentOptionsKeys.Configurations
+			payload: Partial<PersistentOptionsConfigurations>
+	  }
+	| {
+			type: typeof PersistentOptionsKeys.WelcomeModal
+			payload: PersistentOptionsWelcomeModal
+	  }
+	| {
+			type: typeof PersistentOptionsKeys.Preset
+			payload: PersistentOptionsPreset
+	  }
 
 export type PersistentOptions = {
 	[PersistentOptionsKeys.I18N]: PersistentOptionsI18N
@@ -213,6 +246,9 @@ export type PersistentOptions = {
 	[PersistentOptionsKeys.MC]: PersistentOptionsMC
 	[PersistentOptionsKeys.Debug]: PersistentOptionsDebug
 	[PersistentOptionsKeys.Tor]: PersistentOptionsTor
+	[PersistentOptionsKeys.Configurations]: PersistentOptionsConfigurations
+	[PersistentOptionsKeys.WelcomeModal]: PersistentOptionsWelcomeModal
+	[PersistentOptionsKeys.Preset]: PersistentOptionsPreset
 }
 
 export const defaultPersistentOptions = (): PersistentOptions => {
@@ -250,6 +286,30 @@ export const defaultPersistentOptions = (): PersistentOptions => {
 		},
 		[PersistentOptionsKeys.Tor]: {
 			flag: 'disabled',
+		},
+		[PersistentOptionsKeys.Configurations]: {
+			network: {
+				displayName: 'main.configurations.network.display-name',
+				desc: 'main.configurations.network.desc',
+				icon: 'berty_dev_blue_bg',
+				state: 'unread',
+				color: '#EBECFD',
+				navigate: ['main', 'networkOptions'],
+			},
+			notification: {
+				displayName: 'main.configurations.notification.display-name',
+				desc: 'main.configurations.notification.desc',
+				icon: 'berty_bot_orange_bg',
+				state: 'unread',
+				color: '#FDE9EF',
+				navigate: ['onboarding', 'servicesAuth'],
+			},
+		},
+		[PersistentOptionsKeys.WelcomeModal]: {
+			enable: true,
+		},
+		[PersistentOptionsKeys.Preset]: {
+			value: 'performance',
 		},
 	}
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableHighlight, View, ViewProps } from 'react-native'
+import { StyleProp, TouchableHighlight, View, ViewProps } from 'react-native'
 import { SafeAreaConsumer } from 'react-native-safe-area-context'
 import { CommonActions } from '@react-navigation/native'
 import { Icon, Text } from '@ui-kitten/components'
@@ -13,10 +13,12 @@ import { Routes, useNavigation } from '@berty-tech/navigation'
 import { ConversationAvatar, HardcodedAvatar } from '../../avatars'
 import { pbDateToNum, timeFormat } from '../../helpers'
 import { UnreadCount } from './UnreadCount'
+import { useTranslation } from 'react-i18next'
 
 type ConversationsProps = ViewProps & {
 	items: Array<any>
 	suggestions: Array<any>
+	configurations: Array<any>
 	addBot: any
 }
 
@@ -265,10 +267,12 @@ const ConversationsItem: React.FC<ConversationsItemProps> = (props) => {
 
 const SuggestionsItem: React.FC<{
 	displayName: string
+	desc: string
 	link: string
 	addBot: any
 	icon: string
-}> = ({ displayName, link, addBot, icon }) => {
+	style?: StyleProp<any>
+}> = ({ displayName, desc, link, addBot, icon, style }) => {
 	const [{ color, row, border, flex, padding, text, margin }] = useStyles()
 	return (
 		<>
@@ -276,6 +280,7 @@ const SuggestionsItem: React.FC<{
 				underlayColor={color.light.grey}
 				style={[
 					padding.horizontal.medium,
+					style,
 					// !isAccepted && type !== beapi.messenger.Conversation.Type.MultiMemberType && opacity(0.6),
 				]}
 				onPress={() => addBot({ displayName, link, isVisible: true })}
@@ -339,7 +344,7 @@ const SuggestionsItem: React.FC<{
 								numberOfLines={1}
 								style={[{ flexGrow: 2, flexShrink: 1 }, text.size.small, text.color.grey]}
 							>
-								{`Click here to add ${displayName}`}
+								{desc}
 							</Text>
 							{/* Message status */}
 							<View
@@ -366,12 +371,15 @@ const SuggestionsItem: React.FC<{
 export const Conversations: React.FC<ConversationsProps> = ({
 	items,
 	suggestions,
+	configurations,
 	style,
 	onLayout,
 	addBot,
 }) => {
 	const [{ background }] = useStyles()
-	return items.length || suggestions.length ? (
+	const { t } = useTranslation()
+	const { navigate } = useNavigation()
+	return items.length || suggestions.length || configurations.length ? (
 		<SafeAreaConsumer>
 			{(insets) => (
 				<View
@@ -382,11 +390,33 @@ export const Conversations: React.FC<ConversationsProps> = ({
 						{ paddingBottom: 100 - (insets?.bottom || 0) + (insets?.bottom || 0) },
 					]}
 				>
+					{configurations.map((config) => (
+						<SuggestionsItem
+							key={config.displayName}
+							displayName={t(config.displayName)}
+							desc={t(config.desc)}
+							link=''
+							icon={config.icon}
+							addBot={() =>
+								config.navigate.reduce(
+									(value: { [key: string]: any }, entry: string) => value[entry],
+									navigate,
+								)()
+							}
+							style={{ backgroundColor: config.color }}
+						/>
+					))}
+
 					{items.map((i) => (
 						<ConversationsItem key={i.publicKey} {...i} />
 					))}
 					{suggestions.map((i: any, key: any) => (
-						<SuggestionsItem key={key} {...i} addBot={addBot} />
+						<SuggestionsItem
+							key={key}
+							{...i}
+							desc={`${t('main.suggestion-display-name-initial')} ${i.displayName}`}
+							addBot={addBot}
+						/>
 					))}
 				</View>
 			)}
