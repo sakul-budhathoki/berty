@@ -12,6 +12,9 @@ import { useStyles } from '@berty-tech/styles'
 import Avatar from './Buck_Berty_Icon_Card.svg'
 import BlurView from '../shared-components/BlurView'
 import { useTranslation } from 'react-i18next'
+import { requestNotifications, request, PERMISSIONS } from 'react-native-permissions'
+
+import { PersistentOptionsKeys, useMsgrContext } from '@berty-tech/store/context'
 
 import WelcomeBackground from '@berty-tech/assets/welcome_bg.png'
 import { Routes } from '@berty-tech/navigation'
@@ -21,7 +24,6 @@ const useStylesWelcome = () => {
 	const [{ width, border, padding, margin }] = useStyles()
 	return {
 		skipButton: [
-			border.scale(2),
 			border.radius.small,
 			margin.top.scale(15),
 			padding.left.small,
@@ -32,7 +34,6 @@ const useStylesWelcome = () => {
 		],
 		addButton: [
 			border.color.light.blue,
-			border.scale(2),
 			border.radius.small,
 			margin.top.scale(15),
 			padding.left.small,
@@ -49,6 +50,7 @@ export const Body: React.FC<{ closeModal: () => void }> = ({ closeModal }) => {
 	const { t } = useTranslation()
 	const _styles = useStylesWelcome()
 	const { reset } = useNavigation()
+	const { persistentOptions, setPersistentOption } = useMsgrContext()
 
 	return (
 		<View
@@ -166,17 +168,28 @@ export const Body: React.FC<{ closeModal: () => void }> = ({ closeModal }) => {
 							style={[row.fill, margin.bottom.medium, background.light.blue, _styles.addButton]}
 							onPress={async () => {
 								closeModal()
-								reset({
-									index: 0,
-									routes: [
-										{
-											name: Routes.Main.NetworkOptions,
-											params: {
-												isFromModal: true,
-											},
+								await requestNotifications(['alert', 'badge'])
+								await setPersistentOption({
+									type: PersistentOptionsKeys.Configurations,
+									payload: {
+										...persistentOptions.configurations,
+										notification: {
+											...persistentOptions.configurations.notification,
+											state: 'added',
 										},
-									],
+									},
 								})
+								if (persistentOptions.preset.value === 'full-anonymity') {
+									reset({
+										index: 0,
+										routes: [
+											{
+												name: Routes.Main.NetworkOptions,
+											},
+										],
+									})
+								} else {
+								}
 							}}
 						>
 							<Icon

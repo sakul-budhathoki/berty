@@ -65,6 +65,7 @@ targets:
         UIBackgroundModes:
         - fetch
         - processing
+        - bluetooth-peripheral
         UILaunchStoryboardName: BootSplash
         UIRequiredDeviceCapabilities: [armv7]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]

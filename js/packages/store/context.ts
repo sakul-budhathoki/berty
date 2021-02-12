@@ -179,12 +179,12 @@ export type PersistentOptionsTor = {
 }
 
 export type Configuration = {
+	key: 'network' | 'notification'
 	displayName: string
 	desc: string
 	icon: string
 	state: 'added' | 'skipped' | 'unread'
 	color: string
-	navigate: string[]
 }
 
 export type PersistentOptionsWelcomeModal = {
@@ -289,20 +289,20 @@ export const defaultPersistentOptions = (): PersistentOptions => {
 		},
 		[PersistentOptionsKeys.Configurations]: {
 			network: {
+				key: 'network',
 				displayName: 'main.configurations.network.display-name',
 				desc: 'main.configurations.network.desc',
 				icon: 'berty_dev_blue_bg',
 				state: 'unread',
 				color: '#EBECFD',
-				navigate: ['main', 'networkOptions'],
 			},
 			notification: {
+				key: 'notification',
 				displayName: 'main.configurations.notification.display-name',
 				desc: 'main.configurations.notification.desc',
 				icon: 'berty_bot_orange_bg',
 				state: 'unread',
 				color: '#FDE9EF',
-				navigate: ['onboarding', 'servicesAuth'],
 			},
 		},
 		[PersistentOptionsKeys.WelcomeModal]: {

@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { useMsgrContext } from '@berty-tech/store/context'
 import { ButtonSetting } from '@berty-tech/components/shared-components/SettingsButtons'
 import Button from '@berty-tech/components/onboarding/Button'
-import { Routes } from '@berty-tech/navigation'
 import { RouteProp, useNavigation } from '@react-navigation/native'
 import { PersistentOptionsKeys } from '@berty-tech/store/context'
 import NetworkOptionsBg from '@berty-tech/assets/network_options_bg.png'
@@ -16,11 +15,10 @@ enum Modes {
 	TORCompatible,
 }
 
-export const NetworkOptions: React.FC<{ route: RouteProp<any, any> }> = ({ route }) => {
-	const isFromModal = route.params?.isFromModal
+export const NetworkOptions: React.FC<{ route: RouteProp<any, any> }> = () => {
 	const { t }: { t: any } = useTranslation()
 	const { setPersistentOption, persistentOptions } = useMsgrContext()
-	const { goBack, reset } = useNavigation()
+	const { goBack } = useNavigation()
 
 	const [mode, setMode] = useState(Modes.FullAnon)
 	const [toggleValues, setToggleValues] = useState({
@@ -211,22 +209,7 @@ export const NetworkOptions: React.FC<{ route: RouteProp<any, any> }> = ({ route
 									},
 								})
 							}
-
-							if (isFromModal) {
-								reset({
-									index: 0,
-									routes: [
-										{
-											name: Routes.Onboarding.ServicesAuth,
-											params: {
-												isFromModal: true,
-											},
-										},
-									],
-								})
-							} else {
-								goBack()
-							}
+							goBack()
 						}}
 					>
 						{t('main.network-options.save')}
@@ -245,21 +228,7 @@ export const NetworkOptions: React.FC<{ route: RouteProp<any, any> }> = ({ route
 									},
 								},
 							})
-							if (isFromModal) {
-								reset({
-									index: 0,
-									routes: [
-										{
-											name: Routes.Onboarding.ServicesAuth,
-											params: {
-												isFromModal: true,
-											},
-										},
-									],
-								})
-							} else {
-								goBack()
-							}
+							goBack()
 						}}
 					>
 						<Text style={[text.size.small, text.color.grey, text.align.center]}>

@@ -89,16 +89,16 @@ export const ServicesAuth: React.FC<{ route: RouteProp<any, any> }> = ({ route }
 			<ServicesAuthBody
 				isFromModal={isFromModal}
 				next={async () => {
-					await setPersistentOption({
-						type: PersistentOptionsKeys.Configurations,
-						payload: {
-							...persistentOptions.configurations,
-							notification: {
-								...persistentOptions.configurations.notification,
-								state: 'skipped',
-							},
-						},
-					})
+					// await setPersistentOption({
+					// 	type: PersistentOptionsKeys.Configurations,
+					// 	payload: {
+					// 		...persistentOptions.configurations,
+					// 		notification: {
+					// 			...persistentOptions.configurations.notification,
+					// 			state: 'skipped',
+					// 		},
+					// 	},
+					// })
 					if (isFromModal) {
 						reset({
 							index: 0,

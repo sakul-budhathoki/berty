@@ -45,15 +45,15 @@ static NSString* const __nonnull PEER_ID_UUID = @"0EF50D30-E208-4315-B323-D05E0A
         _serviceAdded = [[CountDownLatch alloc] init:1];
         _bDevices = [[NSMutableArray alloc] init];
 
-        _cManager = [[CBCentralManager alloc]
-                        initWithDelegate:self
-                        queue:dispatch_queue_create("CentralManager", DISPATCH_QUEUE_SERIAL)
-                        options:@{CBCentralManagerOptionShowPowerAlertKey:[NSNumber numberWithBool:YES]}];
+        // _cManager = [[CBCentralManager alloc]
+        //                 initWithDelegate:self
+        //                 queue:dispatch_queue_create("CentralManager", DISPATCH_QUEUE_SERIAL)
+        //                 options:@{CBCentralManagerOptionShowPowerAlertKey:[NSNumber numberWithBool:YES]}];
 
-        _pManager = [[CBPeripheralManager alloc]
-                        initWithDelegate:self
-                        queue:dispatch_queue_create("PeripheralManager", DISPATCH_QUEUE_SERIAL)
-                        options:@{CBPeripheralManagerOptionShowPowerAlertKey:[NSNumber numberWithBool:YES]}];
+        // _pManager = [[CBPeripheralManager alloc]
+        //                 initWithDelegate:self
+        //                 queue:dispatch_queue_create("PeripheralManager", DISPATCH_QUEUE_SERIAL)
+        //                 options:@{CBPeripheralManagerOptionShowPowerAlertKey:[NSNumber numberWithBool:YES]}];
 
         [self initService];
         [self addService];
@@ -97,13 +97,13 @@ static NSString* const __nonnull PEER_ID_UUID = @"0EF50D30-E208-4315-B323-D05E0A
     });
 }
 
-- (void)peripheralManager:(CBPeripheralManager *)peripheral didAddService:(CBService *)service error:(nullable NSError *)error {
-    if (error) {
-        os_log_error(OS_LOG_BLE, "didAddService() error: %{public}@", [error localizedFailureReason]);
-    }
-    os_log_debug(OS_LOG_BLE, "peripheralManager: didAddService: %{public}@", [service.UUID UUIDString]);
-    [self.serviceAdded countDown];
-}
+// - (void)peripheralManager:(CBPeripheralManager *)peripheral didAddService:(CBService *)service error:(nullable NSError *)error {
+//     if (error) {
+//         os_log_error(OS_LOG_BLE, "didAddService() error: %{public}@", [error localizedFailureReason]);
+//     }
+//     os_log_debug(OS_LOG_BLE, "peripheralManager: didAddService: %{public}@", [service.UUID UUIDString]);
+//     [self.serviceAdded countDown];
+// }
 
 #pragma mark - go called functions
 
@@ -278,14 +278,14 @@ static NSString* const __nonnull PEER_ID_UUID = @"0EF50D30-E208-4315-B323-D05E0A
     });
 }
 
-- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    os_log(OS_LOG_BLE, "didDisconnectPeripheral() for device %{public}@ with error %{public}@", [peripheral.identifier UUIDString], error);
-    BertyDevice *nDevice = [self findPeripheral:peripheral];
-    @synchronized (self.bDevices) {
-        [self.bDevices removeObject:nDevice];
-    }
-    BLEBridgeHandleLostPeer(nDevice.remotePeerID);
-}
+// - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+//     os_log(OS_LOG_BLE, "didDisconnectPeripheral() for device %{public}@ with error %{public}@", [peripheral.identifier UUIDString], error);
+//     BertyDevice *nDevice = [self findPeripheral:peripheral];
+//     @synchronized (self.bDevices) {
+//         [self.bDevices removeObject:nDevice];
+//     }
+//     BLEBridgeHandleLostPeer(nDevice.remotePeerID);
+// }
 
 #pragma mark - State Management
 

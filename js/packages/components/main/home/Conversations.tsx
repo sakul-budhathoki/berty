@@ -3,10 +3,11 @@ import { StyleProp, TouchableHighlight, View, ViewProps } from 'react-native'
 import { SafeAreaConsumer } from 'react-native-safe-area-context'
 import { CommonActions } from '@react-navigation/native'
 import { Icon, Text } from '@ui-kitten/components'
+import { requestNotifications, request, PERMISSIONS } from 'react-native-permissions'
 
 import { useStyles } from '@berty-tech/styles'
 import beapi from '@berty-tech/api'
-import { useMsgrContext } from '@berty-tech/store/context'
+import { PersistentOptionsKeys, useMsgrContext } from '@berty-tech/store/context'
 import { useLastConvInteraction } from '@berty-tech/store/hooks'
 import { Routes, useNavigation } from '@berty-tech/navigation'
 
@@ -379,6 +380,8 @@ export const Conversations: React.FC<ConversationsProps> = ({
 	const [{ background }] = useStyles()
 	const { t } = useTranslation()
 	const { navigate } = useNavigation()
+	const { persistentOptions, setPersistentOption } = useMsgrContext()
+
 	return items.length || suggestions.length || configurations.length ? (
 		<SafeAreaConsumer>
 			{(insets) => (
@@ -392,17 +395,38 @@ export const Conversations: React.FC<ConversationsProps> = ({
 				>
 					{configurations.map((config) => (
 						<SuggestionsItem
-							key={config.displayName}
+							key={config.key}
 							displayName={t(config.displayName)}
 							desc={t(config.desc)}
 							link=''
 							icon={config.icon}
-							addBot={() =>
-								config.navigate.reduce(
-									(value: { [key: string]: any }, entry: string) => value[entry],
-									navigate,
-								)()
-							}
+							addBot={async () => {
+								if (config.key === 'network') {
+									try {
+										const per = await request(PERMISSIONS.IOS.BLUETOOTH_PERIPHERAL)
+										console.log(per)
+									} catch (err) {
+										console.log(err)
+									}
+
+									if (persistentOptions.preset.value === 'full-anonymity') {
+										navigate.main.networkOptions()
+									} else {
+									}
+								} else {
+									await requestNotifications(['alert', 'badge'])
+									await setPersistentOption({
+										type: PersistentOptionsKeys.Configurations,
+										payload: {
+											...persistentOptions.configurations,
+											notification: {
+												...persistentOptions.configurations.notification,
+												state: 'added',
+											},
+										},
+									})
+								}
+							}}
 							style={{ backgroundColor: config.color }}
 						/>
 					))}
