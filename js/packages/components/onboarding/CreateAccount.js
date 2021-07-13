@@ -1,26 +1,20 @@
 import React, { useState } from 'react'
-import { View, TextInput, Vibration, StatusBar, Linking } from 'react-native'
-import { Translation, useTranslation } from 'react-i18next'
+import { View, TextInput, Vibration, StatusBar } from 'react-native'
+import { Translation } from 'react-i18next'
 import LottieView from 'lottie-react-native'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-community/async-storage'
 
 import { useStyles } from '@berty-tech/styles'
-import { PersistentOptionsKeys, useMsgrContext } from '@berty-tech/store/context'
+import { useMsgrContext } from '@berty-tech/store/context'
 import { useNotificationsInhibitor } from '@berty-tech/store/hooks'
 
 import SwiperCard from './SwiperCard'
 import OnboardingWrapper from './OnboardingWrapper'
 import { openDocumentPicker } from '../helpers'
-import {
-	checkBluetoothPermission,
-	permissionExplanation,
-	requestBluetoothPermission,
-} from '../settings/Bluetooth'
 
 const CreateAccountBody = ({ next }) => {
 	const ctx = useMsgrContext()
-	const { t } = useTranslation()
 	const [{ text, padding, margin, border }] = useStyles()
 	const [name, setName] = React.useState('')
 	const [isPressed, setIsPressed] = useState(false)
@@ -33,47 +27,9 @@ const CreateAccountBody = ({ next }) => {
 	}, [ctx])
 
 	const handlePersistentOptions = React.useCallback(async () => {
-		const setPermissions = async (state) => {
-			console.log('Bluetooth permissions: ' + state)
-			await ctx.setPersistentOption({
-				type: PersistentOptionsKeys.BLE,
-				payload: {
-					enable: state === 'granted' ? true : false,
-				},
-			})
-			await ctx.setPersistentOption({
-				type: PersistentOptionsKeys.MC,
-				payload: {
-					enable: state === 'granted' ? true : false,
-				},
-			})
-			await ctx.setPersistentOption({
-				type: PersistentOptionsKeys.Nearby,
-				payload: {
-					enable: state === 'granted' ? true : false,
-				},
-			})
-		}
-		checkBluetoothPermission()
-			.then(async (result) => {
-				if (result === 'granted') {
-					await setPermissions(result)
-				} else if (result === 'blocked') {
-					await permissionExplanation(t, () => {
-						Linking.openSettings()
-					})
-				} else if (result !== 'unavailable') {
-					await permissionExplanation(t, () => {})
-					const permission = await requestBluetoothPermission()
-					await setPermissions(permission)
-				}
-				await ctx.createNewAccount()
-				setIsPressed(true)
-			})
-			.catch((err) => {
-				console.log('The Bluetooth permission cannot be retrieved:', err)
-			})
-	}, [ctx, t])
+		await ctx.createNewAccount()
+		setIsPressed(true)
+	}, [ctx])
 
 	const onPress = React.useCallback(async () => {
 		const displayName = name || `anon#${ctx.account.publicKey.substr(0, 4)}`
